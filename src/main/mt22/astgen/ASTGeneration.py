@@ -10,24 +10,24 @@ class ASTGeneration(MT22Visitor):
 
     # decllist
     def visitDecllist(self, ctx: MT22Parser.DecllistContext):
-        print('visitDecllist')
+        # print('visitDecllist')
         if ctx.getChildCount() == 1:
             return self.visit(ctx.decl())
         return self.visit(ctx.decl()) + self.visit(ctx.decllist())
 
     # decl
     def visitDecl(self, ctx: MT22Parser.DeclContext):
-        print("visitDecl")
+        # print("visitDecl")
         return self.visit(ctx.vardecl()) if ctx.vardecl() else self.visit(ctx.funcdecl())
 
     # vardecl
     def visitVardecl(self, ctx: MT22Parser.VardeclContext):
-        print('visitVardecl')
+        # print('visitVardecl')
         return self.visit(ctx.vardeclnoinit()) if ctx.vardeclnoinit() else self.visit(ctx.vardeclinit)
 
     # vardeclnoinit
     def visitVardeclnoinit(self, ctx: MT22Parser.VardeclnoinitContext):
-        print('visitVardeclnoinit')
+        # print('visitVardeclnoinit')
         return [VarDecl(x, self.visit(ctx.typ())) for x in self.visit(ctx.idlist())]
 
     # vardeclinit
@@ -154,13 +154,14 @@ class ASTGeneration(MT22Visitor):
     # IDLIST & TYP
     # idlist
     def visitIdlist(self, ctx: MT22Parser.IdlistContext):
-        print('visitIdlist')
+        # print('visitIdlist')
         if ctx.getChildCount() == 1:
             return [ctx.ID().getText()]
         return [ctx.ID().getText()] + self.visit(ctx.idlist())
 
+    # typ
     def visitTyp(self, ctx: MT22Parser.TypContext):
-        print('visitTyp')
+        # print('visitTyp')
         if ctx.INT():
             return IntegerType()
         elif ctx.FLOAT():
@@ -171,16 +172,26 @@ class ASTGeneration(MT22Visitor):
             return BooleanType()
         elif ctx.AUTO():
             return AutoType()
-        return None
+        return self.visit(ctx.arraytyp())
 
+    # arrayTyp
     def visitArraytyp(self, ctx: MT22Parser.ArraytypContext):
-        return self.visitChildren(ctx)
+        # print('visitArraytyp')
+        return ArrayType(self.visit(ctx.intList()), self.visit(ctx.typ()))
 
+    # intList
     def visitIntList(self, ctx: MT22Parser.IntListContext):
-        return self.visitChildren(ctx)
+        # print('visitIntList')
+        if ctx.getChildCount() == 1:
+            return [self.visit(ctx.intandexpr())]
+        return [self.visit(ctx.intandexpr())] + self.visit(ctx.intList())
 
+    # intandexpr
     def visitIntandexpr(self, ctx: MT22Parser.IntandexprContext):
-        return self.visitChildren(ctx)
+        # print('visitIntandexpr')
+        if ctx.INTLIT():
+            return int(ctx.INTLIT().getText())
+        return self.visit(ctx.expr())
 
     def visitAlllit(self, ctx: MT22Parser.AlllitContext):
         return self.visitChildren(ctx)
@@ -201,7 +212,7 @@ class ASTGeneration(MT22Visitor):
     def visitReadInt(self, ctx: MT22Parser.ReadIntContext):
         return self.visitChildren(ctx)
 
-    def visitPrintInt(self, ctx: MT22Parser.PrintIntContext):
+    # # def visitPrintInt(self, ctx: MT22Parser.PrintIntContext):
         return self.visitChildren(ctx)
 
     def visitReadFloat(self, ctx: MT22Parser.ReadFloatContext):
@@ -213,13 +224,13 @@ class ASTGeneration(MT22Visitor):
     def visitReadBoolean(self, ctx: MT22Parser.ReadBooleanContext):
         return self.visitChildren(ctx)
 
-    def visitPrintBoolean(self, ctx: MT22Parser.PrintBooleanContext):
+    # # def visitPrintBoolean(self, ctx: MT22Parser.PrintBooleanContext):
         return self.visitChildren(ctx)
 
     def visitReadString(self, ctx: MT22Parser.ReadStringContext):
         return self.visitChildren(ctx)
 
-    def visitPrintString(self, ctx: MT22Parser.PrintStringContext):
+    # # def visitPrintString(self, ctx: MT22Parser.PrintStringContext):
         return self.visitChildren(ctx)
 
     def visitSuperFunc(self, ctx: MT22Parser.SuperFuncContext):

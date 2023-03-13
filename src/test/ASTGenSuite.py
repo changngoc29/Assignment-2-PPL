@@ -49,3 +49,12 @@ class ASTGenSuite(unittest.TestCase):
 # 	FuncDecl(main, VoidType, [], None, BlockStmt([]))
 # ])"""
 #         self.assertTrue(TestAST.test(input, expect, 304))
+
+    def testcase5(self):
+        # test vardecl with no init of array
+        input = """x: array[2,3] of integer;"""
+        expect = str(Program([
+            VarDecl("x", ArrayType([2, 3], IntegerType()))
+        ]))
+        # print(expect)
+        self.assertTrue(TestAST.test(input, expect, 305))
