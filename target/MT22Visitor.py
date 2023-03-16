@@ -154,21 +154,6 @@ class MT22Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by MT22Parser#initexpr.
-    def visitInitexpr(self, ctx:MT22Parser.InitexprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by MT22Parser#conditionexpr.
-    def visitConditionexpr(self, ctx:MT22Parser.ConditionexprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by MT22Parser#updateexpr.
-    def visitUpdateexpr(self, ctx:MT22Parser.UpdateexprContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by MT22Parser#whilestmt.
     def visitWhilestmt(self, ctx:MT22Parser.WhilestmtContext):
         return self.visitChildren(ctx)

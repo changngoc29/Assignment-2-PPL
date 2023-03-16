@@ -22,7 +22,7 @@ funcdecl: ID COLON FUNCTION functyp LB paramlist RB (INHERIT ID)? blockstmt;
 paramlist: params | ;
 params: param CM params | param;
 param: INHERIT? OUT? ID COLON typ;
-functyp: typ | VOID ;
+functyp: typ | VOID ; 
 
 // EXPRESSION
 expr: relationalExpr CONCATOP relationalExpr | relationalExpr;
@@ -50,24 +50,23 @@ stmt: assignstmt | ifstmt | forstmt | whilestmt | dowhilestmt
 	| blockstmt;
 assignstmt: scalarvar EQ expr SM;
 ifstmt: IF LB expr RB stmt (ELSE stmt)? ;
-forstmt: FOR LB scalarvar EQ initexpr CM conditionexpr CM updateexpr RB stmt;
-initexpr: expr;
-conditionexpr: expr;
-updateexpr: expr;
+forstmt: FOR LB scalarvar EQ expr CM expr CM expr RB stmt;
 whilestmt: WHILE LB expr RB stmt;
 dowhilestmt: DO blockstmt WHILE LB expr RB SM;
 breakstmt: BREAK SM;
 continuestmt: CONTINUE SM;
-returnstmt: RETURN expr SM;
-callstmt: callexpr SM;
+returnstmt: RETURN expr? SM;
+callstmt: (ID | specialFunc) LB nullexprlist RB SM;
 blockstmt: LP blockstmtbody RP;
 blockstmtbody: declandstmts | ;
 declandstmts: declandstmt declandstmts | declandstmt;
 declandstmt: decl | stmt;
 scalarvar: ID | (ID LS nonullexprlist RS);
+
 // SMTMLIST & EXPRLIST
 nonullexprlist: expr CM nonullexprlist | expr;
 nullexprlist: nonullexprlist | ;
+
 // IDLIST & TYP
 idlist: ID CM idlist | ID;
 typ: INT | FLOAT | STRING | BOOLEAN | AUTO | arraytyp;
@@ -77,7 +76,7 @@ intandexpr: INTLIT | expr;
 alllit: INTLIT | STRINGLIT | FLOATLIT | TRUE | FALSE | arrayLit;
 arrayLit: LP arrayElements RP;
 arrayElements: alllits | ; 
-alllits: (alllit|expr) CM alllits | (alllit|expr);
+alllits: expr CM alllits | expr;
 
 // SPECIAL FUNCTION
 specialFunc: readInt | printInt | readFloat
