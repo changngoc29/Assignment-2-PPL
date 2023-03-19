@@ -239,3 +239,302 @@ class ASTGenSuite(unittest.TestCase):
 	FuncDecl(main, VoidType, [], None, BlockStmt([CallStmt(testfunc, )]))
 ])"""
         self.assertTrue(TestAST.test(input, expect, 318))
+
+    def testcase19(self):
+        input = """
+    testfunc: function auto (a: boolean) {
+        while (a < 10) {
+            {
+                a = a + 1;
+            }
+        }
+    }
+"""
+        expect = """Program([
+	FuncDecl(testfunc, AutoType, [Param(a, BooleanType)], None, BlockStmt([WhileStmt(BinExpr(<, Id(a), IntegerLit(10)), BlockStmt([BlockStmt([AssignStmt(Id(a), BinExpr(+, Id(a), IntegerLit(1)))])]))]))
+])"""
+        self.assertTrue(TestAST.test(input, expect, 319))
+
+    def testcase20(self):
+        input = """
+    testfunc: function string (a: boolean) {
+        x: float = 1.5e-10 + x + y;
+    }
+"""
+        expect = """Program([
+	FuncDecl(testfunc, StringType, [Param(a, BooleanType)], None, BlockStmt([VarDecl(x, FloatType, BinExpr(+, BinExpr(+, FloatLit(1.5e-10), Id(x)), Id(y)))]))
+])"""
+        self.assertTrue(TestAST.test(input, expect, 320))
+
+    def testcase21(self):
+        input = """
+    testfunc: function void (inherit out a: array[1] of boolean) {
+        if(a[1, 2] == "true")
+            super(printInteger(a[1*2, 3+4]), x%2);
+    }
+"""
+        expect = """Program([
+	FuncDecl(testfunc, VoidType, [InheritOutParam(a, ArrayType([1], BooleanType))], None, BlockStmt([IfStmt(BinExpr(==, ArrayCell(a, [IntegerLit(1), IntegerLit(2)]), StringLit(true)), CallStmt(super, FuncCall(printInteger, [ArrayCell(a, [BinExpr(*, IntegerLit(1), IntegerLit(2)), BinExpr(+, IntegerLit(3), IntegerLit(4))])]), BinExpr(%, Id(x), IntegerLit(2))))]))
+])"""
+        self.assertTrue(TestAST.test(input, expect, 321))
+
+    def testcase23(self):
+        input = """
+    testfunc: function void (inherit out a: array[2, 3] of boolean) inherit foo {
+        if(a[a[1, 2], 2] == "true") {
+            {
+                {
+                    a[a[a[1, 2], 3], 2] = "false";
+                }
+            }
+        }
+            
+    }
+"""
+        expect = """Program([
+	FuncDecl(testfunc, VoidType, [InheritOutParam(a, ArrayType([2, 3], BooleanType))], foo, BlockStmt([IfStmt(BinExpr(==, ArrayCell(a, [ArrayCell(a, [IntegerLit(1), IntegerLit(2)]), IntegerLit(2)]), StringLit(true)), BlockStmt([BlockStmt([BlockStmt([AssignStmt(ArrayCell(a, [ArrayCell(a, [ArrayCell(a, [IntegerLit(1), IntegerLit(2)]), IntegerLit(3)]), IntegerLit(2)]), StringLit(false))])])]))]))
+])"""
+        self.assertTrue(TestAST.test(input, expect, 323))
+
+    def testcase25(self):
+        prog = """dd: integer;"""
+        expect = str(Program([VarDecl("dd", typ=IntegerType())]))
+        self.assertTrue(TestAST.test(prog, expect, 325))
+
+    def testcase26(self):
+        prog = """a, b, c, d, e, f, g, h: integer;"""
+        expect = str(
+            Program(
+                [
+                    VarDecl("a", typ=IntegerType()),
+                    VarDecl("b", typ=IntegerType()),
+                    VarDecl("c", typ=IntegerType()),
+                    VarDecl("d", typ=IntegerType()),
+                    VarDecl("e", typ=IntegerType()),
+                    VarDecl("f", typ=IntegerType()),
+                    VarDecl("g", typ=IntegerType()),
+                    VarDecl("h", typ=IntegerType()),
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 326))
+
+    def testcase27(self):
+        prog = """a: integer = 2023;"""
+        expect = str(
+            Program([VarDecl("a", typ=IntegerType(), init=IntegerLit(2023))]))
+        self.assertTrue(TestAST.test(prog, expect, 327))
+
+    def testcase28(self):
+        prog = "a: auto = arr[1, foo(), three, 2*2];"
+        expect = str(
+            Program(
+                [
+                    VarDecl(
+                        "a",
+                        AutoType(),
+                        ArrayCell(
+                            "arr",
+                            [
+                                IntegerLit(1),
+                                FuncCall("foo", []),
+                                Id("three"),
+                                BinExpr("*", IntegerLit(2), IntegerLit(2)),
+                            ],
+                        ),
+                    )
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 328), f"Correct {expect}")
+
+    def testcase329(self):
+        prog = """a: integer = -404;
+b: boolean = !true;"""
+        expect = str(
+            Program(
+                [
+                    VarDecl("a", typ=IntegerType(),
+                            init=UnExpr("-", IntegerLit(404))),
+                    VarDecl("b", typ=BooleanType(),
+                            init=UnExpr("!", BooleanLit(True))),
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 329),
+                        f"Correct: \n{expect}")
+
+    def testcase330(self):
+        prog = """a: integer = -101 * -4;"""
+        expect = str(
+            Program(
+                [
+                    VarDecl(
+                        "a",
+                        typ=IntegerType(),
+                        init=BinExpr(
+                            "*", UnExpr("-", IntegerLit(101)
+                                        ), UnExpr("-", IntegerLit(4))
+                        ),
+                    ),
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 330),
+                        f"Correct: \n{expect}")
+
+    def testcase331(self):
+        prog = "lol: integer = 11 + - 2;"
+        expect = str(
+            Program(
+                [
+                    VarDecl(
+                        name="lol",
+                        typ=IntegerType(),
+                        init=BinExpr(
+                            op="+",
+                            left=IntegerLit(11),
+                            right=UnExpr(op="-", val=IntegerLit(2)),
+                        ),
+                    ),
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 331), f"Correct {expect}")
+
+    def testcase332(self):
+        prog = "a: integer = 100 + 100 * -100 - 100 / 100 + 100 % 100;"
+        expect = str(
+            Program(
+                [
+                    VarDecl(
+                        "a",
+                        IntegerType(),
+                        init=BinExpr(
+                            op="+",
+                            left=BinExpr(
+                                op="-",
+                                left=BinExpr(
+                                    op="+",
+                                    left=IntegerLit(100),
+                                    right=BinExpr(
+                                        op="*",
+                                        left=IntegerLit(100),
+                                        right=UnExpr(
+                                            op="-", val=IntegerLit(100)),
+                                    ),
+                                ),
+                                right=BinExpr(
+                                    op="/", left=IntegerLit(100), right=IntegerLit(100)
+                                ),
+                            ),
+                            right=BinExpr(
+                                op="%", left=IntegerLit(100), right=IntegerLit(100)
+                            ),
+                        ),
+                    )
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 332), f"Correct: {expect}")
+
+    def testcase333(self):
+        prog = "a: integer = two() || three;"
+        expect = str(
+            Program(
+                [
+                    VarDecl(
+                        name="a",
+                        typ=IntegerType(),
+                        init=BinExpr(
+                            op="||", left=FuncCall("two", []), right=Id("three")
+                        ),
+                    )
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 324), f"Correct {expect}")
+
+    def testcase334(self):
+        prog = "a: auto = two() != three;"
+        expect = str(
+            Program(
+                [
+                    VarDecl(
+                        "a",
+                        AutoType(),
+                        init=BinExpr("!=", FuncCall("two", []), Id("three")),
+                    )
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 334), f"Correct {expect}")
+
+    def testcase335(self):
+        prog = """main: function void() {
+callFunc(1, "String", foo());
+}"""
+        expect = str(
+            Program(
+                [
+                    FuncDecl(
+                        "main",
+                        VoidType(),
+                        [],
+                        None,
+                        BlockStmt(
+                            [
+                                CallStmt(
+                                    "callFunc",
+                                    [
+                                        IntegerLit(1),
+                                        StringLit("String"),
+                                        FuncCall("foo", []),
+                                    ],
+                                )
+                            ]
+                        ),
+                    )
+                ]
+            )
+        )
+        self.assertTrue(TestAST.test(prog, expect, 335), f"Correct {expect}")
+
+    def testcase336(self):
+        prog = """main: function void() {
+    if (foo == barz)
+        if (barz == bar)
+            call();
+        else
+            dontCall();
+    else
+        callAPI();
+}"""
+
+        expect = str(
+            Program(
+                [
+                    FuncDecl(
+                        "main",
+                        VoidType(),
+                        [],
+                        None,
+                        BlockStmt(
+                            [
+                                IfStmt(
+                                    BinExpr("==", Id("foo"), Id("barz")),
+                                    IfStmt(
+                                        BinExpr("==", Id("barz"), Id("bar")),
+                                        CallStmt("call", []),
+                                        CallStmt("dontCall", []),
+                                    ),
+                                    CallStmt("callAPI", []),
+                                )
+                            ]
+                        ),
+                    )
+                ]
+            )
+        )
+
+        self.assertTrue(TestAST.test(prog, expect, 336), f"Correct {expect}")

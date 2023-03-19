@@ -25,3 +25,8 @@ class LexerSuite(unittest.TestCase):
         """test string literal"""
         self.assertTrue(TestLexer.test(""" "He asked me: \\"Where is John?\\"" """,
                         """He asked me: \\"Where is John?\\",<EOF>""", 104))
+
+    def test95(self):
+        input = """\"VietNam\'s Football team\""""
+        target = "VietNam\\'s Football team,<EOF>"
+        self.assertTrue(TestLexer.test(input, target, 195))

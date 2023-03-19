@@ -115,7 +115,7 @@ class ASTGeneration(MT22Visitor):
     def visitLogicalOpt(self, ctx: MT22Parser.LogicalOptContext):
         if ctx.ANDOP():
             return ctx.ANDOP().getText()
-        return ctx.OROP.getText()
+        return ctx.OROP().getText()
 
     # addExpr
     def visitAddExpr(self, ctx: MT22Parser.AddExprContext):
@@ -174,7 +174,7 @@ class ASTGeneration(MT22Visitor):
     def visitCallexpr(self, ctx: MT22Parser.CallexprContext):
         if ctx.ID():
             return FuncCall(ctx.ID().getText(), self.visit(ctx.nullexprlist()))
-        return FuncCall(self.visit(ctx.speicalFunc()), self.visit(ctx.nullexprlist()))
+        return FuncCall(self.visit(ctx.specialFunc()), self.visit(ctx.nullexprlist()))
 
     # STMT
     # stmt
